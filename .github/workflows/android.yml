@@ -6,10 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Original Repo
+      - name: Checkout Chiteroman Repo
         uses: actions/checkout@v4
         with:
-          repository: 5ec1cff/TrickyStore
+          repository: chiteroman/TrickyStore # Используем оригинал от chiteroman
           submodules: recursive
 
       - name: Set up JDK 21
@@ -21,10 +21,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # ГЕНЕРИРУЕМ GRADLE ПРИНУДИТЕЛЬНО
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper
-
+      # Исправляем права на gradlew, который ТАМ ТОЧНО ЕСТЬ
       - name: Make gradlew executable
         run: chmod +x gradlew
 

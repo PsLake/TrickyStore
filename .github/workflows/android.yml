@@ -11,7 +11,6 @@ jobs:
         with:
           repository: 5ec1cff/TrickyStore
           submodules: recursive
-          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -22,8 +21,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Check files (Debug)
-        run: ls -la # Посмотрим, есть ли тут gradlew
+      # ГЕНЕРИРУЕМ GRADLE ПРИНУДИТЕЛЬНО
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper
 
       - name: Make gradlew executable
         run: chmod +x gradlew

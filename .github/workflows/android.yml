@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build TrickyStore
 on:
   workflow_dispatch:
 
@@ -6,11 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
+      - name: Clone Original Repository
+        run: git clone --recursive https://github.com/5ec1cff/TrickyStore.git .
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -21,29 +18,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # ИСПРАВЛЕНИЕ: Ищем gradlew и даем права, где бы он ни был
       - name: Make gradlew executable
-        run: |
-          GRADLEW_PATH=$(find . -name gradlew)
-          if [ -z "$GRADLEW_PATH" ]; then
-            echo "Error: gradlew not found!"
-            exit 1
-          fi
-          chmod +x $GRADLEW_PATH
-          echo "GRADLEW_FOUND=$GRADLEW_PATH" >> $GITHUB_ENV
+        run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: |
-          ${{ env.GRADLEW_FOUND }} assembleDebug
+      - name: Build Remote Provider
+        run: ./gradlew :remote-provider:assembleDebug
+
+      - name: Build TrickyStore Module
+        run: ./gradlew :module:assembleRelease
 
       - name: Upload Remote Provider APK
         uses: actions/upload-artifact@v4
         with:
           name: remote-provider-apk
-          path: "**/build/outputs/apk/debug/*.apk"
+          path: remote-provider/build/outputs/apk/debug/*.apk
 
       - name: Upload TrickyStore Module
         uses: actions/upload-artifact@v4
         with:
           name: TrickyStore-Module
-          path: "**/out/*.zip"
+          path: out/*.zip

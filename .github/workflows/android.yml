@@ -10,6 +10,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -20,21 +21,29 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # ЭТОТ ШАГ ИСПРАВЛЯЕТ ОШИБКУ 127
+      # ИСПРАВЛЕНИЕ: Ищем gradlew и даем права, где бы он ни был
       - name: Make gradlew executable
-        run: chmod +x ./gradlew
+        run: |
+          GRADLEW_PATH=$(find . -name gradlew)
+          if [ -z "$GRADLEW_PATH" ]; then
+            echo "Error: gradlew not found!"
+            exit 1
+          fi
+          chmod +x $GRADLEW_PATH
+          echo "GRADLEW_FOUND=$GRADLEW_PATH" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug
+        run: |
+          ${{ env.GRADLEW_FOUND }} assembleDebug
 
       - name: Upload Remote Provider APK
         uses: actions/upload-artifact@v4
         with:
           name: remote-provider-apk
-          path: remote-provider/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
 
       - name: Upload TrickyStore Module
         uses: actions/upload-artifact@v4
         with:
           name: TrickyStore-Module
-          path: out/*.zip
+          path: "**/out/*.zip"
